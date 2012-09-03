@@ -166,10 +166,15 @@ static int send_reply_iov(fuse_req_t req, int error, struct iovec *iov,
     iov[0].iov_len = sizeof(struct fuse_out_header);
     out.len = iov_length(iov, count);
 
+    /*  removed start pling 06/19/2009 */
+#if 0
     if (req->f->debug)
         fprintf(stderr, "   unique: %llu, error: %i (%s), outsize: %i\n",
                 (unsigned long long) out.unique, out.error,
                 strerror(-out.error), out.len);
+#endif
+    /*  removed end pling 06/19/2009 */
+
     res = fuse_chan_send(req->ch, iov, count);
     free_req(req);
 
@@ -1110,11 +1115,15 @@ static void fuse_ll_process(void *data, const char *buf, size_t len,
     const void *inarg = buf + sizeof(struct fuse_in_header);
     struct fuse_req *req;
 
+    /*  removed start pling 06/19/2009 */
+#if 0
     if (f->debug)
         fprintf(stderr, "unique: %llu, opcode: %s (%i), nodeid: %lu, insize: %zu\n",
                 (unsigned long long) in->unique,
                 opname((enum fuse_opcode) in->opcode), in->opcode,
                 (unsigned long) in->nodeid, len);
+#endif
+    /*  removed end pling 06/19/2009 */
 
     req = (struct fuse_req *) calloc(1, sizeof(struct fuse_req));
     if (req == NULL) {

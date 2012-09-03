@@ -55,6 +55,8 @@
 
 #define NOREVBOM 0  /* JPA rejecting U+FFFE and U+FFFF, open to debate */
 
+#define MB_CUR_MAX 1    //  added pling 03/30/2009, for uclibc
+
 /*
  * IMPORTANT
  * =========
@@ -757,7 +759,8 @@ int ntfs_ucstombs(const ntfschar *ins, const int ins_len, char **outs,
 #ifdef HAVE_MBSINIT
 	memset(&mbstate, 0, sizeof(mbstate));
 #else
-	wctomb(NULL, 0);
+    printf("%s: sizeof(wchar_t) = %d\n", __FUNCTION__, sizeof(wchar_t));
+	//wctomb(NULL, 0);
 #endif
 	for (i = o = 0; i < ins_len; i++) {
 		/* Reallocate memory if necessary or abort. */
@@ -783,7 +786,8 @@ int ntfs_ucstombs(const ntfschar *ins, const int ins_len, char **outs,
 #ifdef HAVE_MBSINIT
 		cnt = wcrtomb(mbs + o, wc, &mbstate);
 #else
-		cnt = wctomb(mbs + o, wc);
+//		cnt = wctomb(mbs + o, wc);
+        printf("********* wc = 0x%04x\n", wc);
 #endif
 		if (cnt == -1)
 			goto err_out;
@@ -871,7 +875,7 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 	}
 #endif
 #elif !defined(DJGPP)
-	ins_len = mbstowcs(NULL, s, 0);
+	//ins_len = mbstowcs(NULL, s, 0);
 #else
 	/* Eeek!!! DJGPP has broken mbstowcs() implementation!!! */
 	ins_len = strlen(ins);
@@ -895,7 +899,7 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 #ifdef HAVE_MBSINIT
 	memset(&mbstate, 0, sizeof(mbstate));
 #else
-	mbtowc(NULL, NULL, 0);
+	//mbtowc(NULL, NULL, 0);
 #endif
 	for (i = o = cnt = 0; i < ins_size; i += cnt, o++) {
 		/* Reallocate memory if necessary. */
@@ -912,7 +916,8 @@ int ntfs_mbstoucs(const char *ins, ntfschar **outs)
 #ifdef HAVE_MBSINIT
 		cnt = mbrtowc(&wc, ins + i, ins_size - i, &mbstate);
 #else
-		cnt = mbtowc(&wc, ins + i, ins_size - i);
+	//	cnt = mbtowc(&wc, ins + i, ins_size - i);
+    printf("%s: wc = 0x%lx\n", __FUNCTION__, wc);
 #endif
 		if (!cnt)
 			break;
@@ -1070,7 +1075,7 @@ void ntfs_ucsfree(ntfschar *ucs)
  * Define the character encoding to be used.
  * Use UTF-8 unless specified otherwise.
  */
-
+#if 0       /*  removed pling 04/01/2009, not used but have compiler errors */
 int ntfs_set_char_encoding(const char *locale)
 {
 	use_utf8 = 0;
@@ -1086,4 +1091,4 @@ int ntfs_set_char_encoding(const char *locale)
 	 	}
 	return 0; /* always successful */
 }
-
+#endif
