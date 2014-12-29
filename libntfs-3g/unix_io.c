@@ -68,6 +68,10 @@
 #	define O_EXCL 0
 #endif
 
+/* Foxconn modified start pling 11/24/2009 */
+extern __off64_t lseek64 (int __fd, __off64_t __offset, int __whence);
+/* Foxconn modified end pling 11/24/2009 */
+
 /**
  * ntfs_device_unix_io_open - Open a device and lock it exclusively
  * @dev:
@@ -243,7 +247,13 @@ static s64 ntfs_device_unix_io_write(struct ntfs_device *dev, const void *buf,
 static s64 ntfs_device_unix_io_pread(struct ntfs_device *dev, void *buf,
 		s64 count, s64 offset)
 {
-	return pread(DEV_FD(dev), buf, count, offset);
+    /* Foxconn modified start pling 04/22/2009 */
+	//return pread(DEV_FD(dev), buf, count, (unsigned long)offset);
+    if (lseek64(DEV_FD(dev), offset, SEEK_SET) < 0)
+        perror("lseek");
+
+    return read(DEV_FD(dev), buf, count); 
+    /* Foxconn modified end pling 04/22/2009 */
 }
 
 /**
@@ -265,7 +275,13 @@ static s64 ntfs_device_unix_io_pwrite(struct ntfs_device *dev, const void *buf,
 		return -1;
 	}
 	NDevSetDirty(dev);
-	return pwrite(DEV_FD(dev), buf, count, offset);
+    
+    /* Foxconn modified start pling 04/22/2009 */
+    //return pwrite(DEV_FD(dev), buf, count, offset);
+    if (lseek64(DEV_FD(dev), offset, SEEK_SET) < 0)
+        perror("lseek");
+	return write(DEV_FD(dev), buf, count);
+    /* Foxconn modified end pling 04/22/2009 */
 }
 
 /**

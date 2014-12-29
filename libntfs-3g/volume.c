@@ -1552,9 +1552,10 @@ int ntfs_set_locale(void)
 {
 	const char *locale;
 
-	locale = setlocale(LC_ALL, "");
+	//locale = setlocale(LC_ALL, "");
+	locale = NULL;
 	if (!locale) {
-		locale = setlocale(LC_ALL, NULL);
+		//locale = setlocale(LC_ALL, NULL);
 		ntfs_log_error("Couldn't set local environment, using default "
 			       "'%s'.\n", locale);
 		return 1;
